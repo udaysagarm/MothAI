@@ -4,25 +4,31 @@ from langchain.tools import tool
 from tools.utils import get_gmail_service
 
 @tool
-def get_unread_emails(max_results: int = 10) -> str:
-    """Retrieves the latest unread emails from the user's inbox.
-    Returns a formatted string with sender, subject, and snippet.
+def get_recent_emails(max_results: int = 10) -> str:
+    """Retrieves the latest emails from the user's Primary inbox (both Read and Unread).
+    Returns a formatted string with status, sender, subject, and snippet.
     """
     service = get_gmail_service()
-    results = service.users().messages().list(userId='me', q='is:unread', maxResults=max_results).execute()
+    # Query for Primary category, no 'is:unread' filter so we get everything
+    results = service.users().messages().list(userId='me', q='category:primary', maxResults=max_results).execute()
     messages = results.get('messages', [])
 
     if not messages:
-        return "No unread messages found."
+        return "No recent messages found in Primary inbox."
 
     output = []
     for msg in messages:
         msg_detail = service.users().messages().get(userId='me', id=msg['id'], format='full').execute()
         headers = msg_detail['payload']['headers']
+        label_ids = msg_detail.get('labelIds', [])
+        
+        # Determine status
+        status = "Unread" if 'UNREAD' in label_ids else "Read"
+        
         subject = next((h['value'] for h in headers if h['name'] == 'Subject'), 'No Subject')
         sender = next((h['value'] for h in headers if h['name'] == 'From'), 'Unknown Sender')
         snippet = msg_detail.get('snippet', '')
-        output.append(f"From: {sender}\nSubject: {subject}\nSnippet: {snippet}\n---")
+        output.append(f"Status: {status}\nFrom: {sender}\nSubject: {subject}\nSnippet: {snippet}\n---")
 
     return "\n".join(output)
 

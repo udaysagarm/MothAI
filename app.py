@@ -28,18 +28,24 @@ if prompt := st.chat_input("What can I do for you today?"):
     with st.spinner("Thinking..."):
         try:
             # Generate response
-            response = run_agent(prompt, st.session_state.chat_history)
+            result = run_agent(prompt, st.session_state.chat_history)
             
+            # Unpack result
+            response_text = result["output"]
+            model_used = result["model_used"]
+
             # Display assistant response in chat message container
             with st.chat_message("assistant"):
-                st.markdown(response)
+                st.markdown(response_text)
+                if model_used != "UNKNOWN":
+                    st.caption(f"Answered by: Gemini {model_used}")
             
             # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.session_state.messages.append({"role": "assistant", "content": response_text})
             
             # Update LangChain history
             st.session_state.chat_history.append(HumanMessage(content=prompt))
-            st.session_state.chat_history.append(AIMessage(content=response))
+            st.session_state.chat_history.append(AIMessage(content=response_text))
             
         except Exception as e:
             st.error(f"An error occurred: {e}")
