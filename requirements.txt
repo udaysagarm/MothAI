@@ -10,3 +10,4 @@ yt-dlp
 duckduckgo-search
 requests
 tenacity
+apscheduler

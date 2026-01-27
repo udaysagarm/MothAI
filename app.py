@@ -13,6 +13,14 @@ if "messages" not in st.session_state:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [] # For LangChain
 
+# Initialize Background Scheduler
+from scheduler_engine import get_scheduler
+if "scheduler_started" not in st.session_state:
+    scheduler = get_scheduler()
+    if not scheduler.running:
+        scheduler.start()
+    st.session_state.scheduler_started = True
+
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):

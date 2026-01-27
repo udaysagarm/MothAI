@@ -13,6 +13,7 @@ from tools.drive import list_drive_files, delete_file_by_name
 from tools.calendar import list_upcoming_events, create_calendar_event
 from tools.youtube import search_videos
 from tools.search import google_search
+from tools.scheduler import schedule_task
 from langchain_community.tools import RequestsGetTool, RequestsPostTool
 from langchain_community.utilities import TextRequestsWrapper
 
@@ -45,6 +46,7 @@ def get_agent_executor(model_name: str = "gemini-1.5-flash-001"):
         create_calendar_event,
         search_videos,
         google_search,
+        schedule_task,
         RequestsGetTool(requests_wrapper=TextRequestsWrapper(), allow_dangerous_requests=True),
         RequestsPostTool(requests_wrapper=TextRequestsWrapper(), allow_dangerous_requests=True)
     ]
@@ -63,7 +65,8 @@ def get_agent_executor(model_name: str = "gemini-1.5-flash-001"):
                        "2. NO ASSUMPTIONS: Never assume the state of the user's inbox, drive, or calendar. Always check with a tool.\n"
                        "3. EXPLICIT ACTION: When fetching data, briefly explicitly state what you are doing (e.g. 'Checking Gmail for latest messages...').\n"
                        "4. EMAIL SUMMARY: When asked for recent emails, summarize the top few results, explicitly noting which ones are Read vs. Unread.\n"
-                       "5. CONFIRMATION PROTOCOL: You are FORBIDDEN from confirming an action (like sending email) until you receive a tool return value. "
+                       "5. TIME & SCHEDULING: If the user mentions specific future times (like 'at 6pm', 'in 2 hours', 'every day'), you MUST use the `schedule_task` tool. Do not try to wait yourself.\n"
+                       "6. CONFIRMATION PROTOCOL: You are FORBIDDEN from confirming an action (like sending email) until you receive a tool return value. "
                        "If tool execution fails, report the error. Do not assume success."),
             ("placeholder", "{chat_history}"),
             ("human", "{input}"),
