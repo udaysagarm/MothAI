@@ -11,6 +11,7 @@ def get_recent_emails(max_results: int = 10) -> str:
     service = get_gmail_service()
     # Query for Primary category, no 'is:unread' filter so we get everything
     results = service.users().messages().list(userId='me', q='category:primary', maxResults=max_results).execute()
+    print(f"DEBUG: Gmail API Raw Response: {results}")
     messages = results.get('messages', [])
 
     if not messages:
