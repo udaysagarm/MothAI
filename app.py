@@ -24,8 +24,18 @@ scheduler = get_scheduler()
 jobs = scheduler.get_jobs()
 if jobs:
     for job in jobs:
-        st.sidebar.markdown(f"**Task:** {job.name}")
-        st.sidebar.caption(f"Next Run: {job.next_run_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        col1, col2 = st.sidebar.columns([0.8, 0.2])
+        with col1:
+            st.write(f"**Task:** {job.name}")
+            st.caption(f"Next Run: {job.next_run_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        with col2:
+            if st.button("🗑️", key=f"del_{job.id}"):
+                try:
+                    scheduler.remove_job(job.id)
+                    st.success("Deleted!")
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Error: {e}")
         st.sidebar.divider()
 else:
     st.sidebar.info("No tasks currently scheduled.")

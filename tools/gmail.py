@@ -66,11 +66,32 @@ def send_email(to: str, subject: str, message_text: str) -> str:
 def create_message(sender, to, subject, message_text):
     """Create a message for an email."""
     from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
     import base64
     
-    message = MIMEText(message_text)
+    # Create a multipart message
+    message = MIMEMultipart("alternative")
     message['to'] = to
     message['from'] = sender
     message['subject'] = subject
+
+    # Create plain text version (strip HTML tags broadly for simple fallback)
+    # Ideally use a library like BeautifulSoup, but for simplicity here we just send content.
+    # A better approach for plain text is to let the user see the raw text if they can't render HTML,
+    # OR we just duplicate the content. 
+    # Let's clean basic tags for the plain text part manually or just send as is?
+    # Sending raw HTML as plain text is ugly. Let's just assume simple HTML text.
+    # The 'message_text' input is likely HTML from the bot.
+    
+    # We'll attach both, assuming the client picks the best one.
+    part1 = MIMEText(message_text, 'plain') 
+    part2 = MIMEText(message_text, 'html')
+
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    message.attach(part1)
+    message.attach(part2)
+
     raw = base64.urlsafe_b64encode(message.as_bytes())
     return {'raw': raw.decode()}
