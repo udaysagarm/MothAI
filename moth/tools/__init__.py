@@ -11,6 +11,7 @@ from moth.tools.youtube import search_videos
 from moth.tools.search import google_search
 from moth.tools.scheduler import schedule_task, list_scheduled_tasks
 from moth.tools.weather import get_current_weather
+from moth.tools.telegram_ops import send_telegram_alert
 from langchain_community.tools import RequestsGetTool, RequestsPostTool
 from langchain_community.utilities import TextRequestsWrapper
 
@@ -45,6 +46,7 @@ def get_all_tools():
         schedule_task,
         list_scheduled_tasks,
         get_current_weather,
+        send_telegram_alert,
         RequestsGetTool(requests_wrapper=TextRequestsWrapper(), allow_dangerous_requests=True),
         RequestsPostTool(requests_wrapper=TextRequestsWrapper(), allow_dangerous_requests=True)
     ]
